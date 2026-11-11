@@ -1,0 +1,13 @@
+import{mkdir,readFile,writeFile,copyFile,access}from'node:fs/promises';
+await mkdir('dist/server',{recursive:true});await mkdir('dist/.openai',{recursive:true});
+const snapshot=await readFile('snapshot.json','utf8').catch(()=> 'null');
+await copyFile('reb-service.mjs','dist/server/reb-service.mjs');
+const html=(await readFile('index.html','utf8')).replace('/*EXTRA_JS*/',await readFile('extras.js','utf8')).replace('/*SNAPSHOT*/ null',snapshot.replace(/</g,'\\u003c'));const js=await readFile('server.mjs','utf8');
+await writeFile('성북구-대시보드.html',html);
+await mkdir('_site',{recursive:true});
+let staticHtml=html.replace('const SNAPSHOT=',"const STATIC_REPORT=true;const SNAPSHOT=");
+staticHtml=staticHtml.replace('async function load(){',"async function load(){if(typeof STATIC_REPORT!=='undefined'){loadReb();rows=[];if(!useSnapshot()){$('#status').textContent='GitHub Pages 브리핑은 저장된 2026년 10월 자료를 제공합니다. 2026-10-01 ~ 2026-10-31 안의 날짜를 선택하세요. 다른 월 실시간 조회는 API 서버 배포가 필요합니다.';render()}return;}");
+await writeFile('_site/index.html',staticHtml);await writeFile('_site/.nojekyll','');
+await writeFile('dist/server/index.js',js.replace('/*HTML*/',JSON.stringify(html)));
+if(await access('.openai/hosting.json').then(()=>true,()=>false))await copyFile('.openai/hosting.json','dist/.openai/hosting.json');
+console.log('Built Worker and GitHub Pages (_site)');

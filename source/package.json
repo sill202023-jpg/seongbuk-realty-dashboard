@@ -1,0 +1,1 @@
+{"name":"seongbuk-briefing","private":true,"type":"module","scripts":{"build":"node build.mjs","start":"node preview.mjs","test":"node --test tests.mjs ui-tests.mjs extended-tests.mjs"}}
